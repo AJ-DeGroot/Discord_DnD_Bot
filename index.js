@@ -17,7 +17,11 @@ bot.on("message", async message => {
   let args = messageArray.slice(1);
 
   if(cmd === `${prefix}roll`){
-    return message.channel.send("Roll");
+    let newArgs = args;
+    newArgs.split('')
+    console.log(newArgs);
+    let result = Math.floor(Math.random() * 10);
+    return message.channel.send(`${result}`);
   }
 });
 
