@@ -27,33 +27,46 @@ bot.on("message", async message => {
     let newArgs = args;
     let diceResults = [];
     let diceTotal = [];
+    let diceRolls = "";
     let rollBonus = 0;
 
     for (var x of newArgs){
-      console.log(newArgs);
       let diceCount = x[0];
-      console.log(diceCount);
-      if (isNaN(x.split("+")[1])){
-
-      } else {
-      rollBonus = Number(rollBonus) + Number(x.split("+")[1]);
-      console.log(rollBonus);
-      }
       let diceSize = x.split("+")[0].slice(2);
-      console.log(diceSize);
+      let currentRolls = [];
+      let localRolls = 0;
 
-      times (diceCount) (() => diceResults.push((Math.floor(Math.random() * diceSize) + 1)));
+      if (isNaN(x.split("+")[1])){
+      } else {
+          rollBonus = Number(rollBonus) + Number(x.split("+")[1]);
+      }
+
+      times (diceCount) (() => currentRolls.push((Math.floor(Math.random() * diceSize) + 1)));
+
+      diceRolls = diceRolls + "(" + (x.split("+")[0]).toString() + ": ";
+
+      for (var [index, r] of currentRolls.entries()){
+
+        diceResults.push(r);
+        localRolls = Number(localRolls) + Number(r);
+
+        if (index === currentRolls.length - 1) {
+          diceRolls = diceRolls + r.toString() + " = " + localRolls;
+        } else {
+          diceRolls = diceRolls + r.toString() + " + ";
+        }
+      }
+
+      diceRolls = diceRolls + ")"
     }
 
     for (var n of diceResults){
       diceTotal = Number(diceTotal) + Number(n);
     }
-
     diceTotal = Number(diceTotal) + Number(rollBonus);
 
-    console.log(diceResults);
     message.delete().catch(O_o=>{});
-    return message.channel.send(`${message.author} rolled: **${diceTotal}**.\n ${diceResults}.\n ${args}`);
+    return message.channel.send(`${message.author} rolled: **${diceTotal}**.\n ${diceRolls}`);
 
   }
 });
