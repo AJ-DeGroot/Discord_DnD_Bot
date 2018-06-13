@@ -35,15 +35,18 @@ bot.on("message", async message => {
       let diceSize = x.split("+")[0].slice(2);
       let currentRolls = [];
       let localRolls = 0;
+      let thisBonus = 0;
 
       if (isNaN(x.split("+")[1])){
+        thisBonus = 0;
       } else {
-          rollBonus = Number(rollBonus) + Number(x.split("+")[1]);
+        rollBonus = Number(rollBonus) + Number(x.split("+")[1]);
+        thisBonus = x.split("+")[1];
       }
 
       times (diceCount) (() => currentRolls.push((Math.floor(Math.random() * diceSize) + 1)));
 
-      diceRolls = diceRolls + "(" + (x.split("+")[0]).toString() + ": ";
+      diceRolls = diceRolls + x.toString() + " (";
 
       for (var [index, r] of currentRolls.entries()){
 
@@ -51,13 +54,19 @@ bot.on("message", async message => {
         localRolls = Number(localRolls) + Number(r);
 
         if (index === currentRolls.length - 1) {
-          diceRolls = diceRolls + r.toString() + " = " + localRolls;
+          localRolls = Number(localRolls) + Number(thisBonus);
+            if (thisBonus === 0 && diceCount === '1') {
+              diceRolls = diceRolls + "**" + r.toString() + "**";
+            } else if (thisBonus === 0) {
+              diceRolls = diceRolls + r.toString() + " = " + "**" + localRolls + "**";
+            } else {
+              diceRolls = diceRolls + r.toString() + " + *" + thisBonus + "*" + " = " + "**" + localRolls + "**";
+            }
         } else {
           diceRolls = diceRolls + r.toString() + " + ";
         }
       }
-
-      diceRolls = diceRolls + ")"
+      diceRolls = diceRolls + ")" + "\n"
     }
 
     for (var n of diceResults){
@@ -66,7 +75,7 @@ bot.on("message", async message => {
     diceTotal = Number(diceTotal) + Number(rollBonus);
 
     message.delete().catch(O_o=>{});
-    return message.channel.send(`${message.author} rolled: **${diceTotal}**.\n ${diceRolls}`);
+    return message.channel.send(`${message.author} rolled: **${diceTotal}**.\n${diceRolls}`);
 
   }
 });
