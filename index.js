@@ -16,31 +16,41 @@ bot.on("ready", async () => {
 
 bot.on("message", async message => {
   if(message.author.bot) return;
-  if(message.channel.type === "dm") return;
+  // if(message.channel.type === "dm") return;
 
   let prefix = botconfig.prefix;
-  let messageArray = message.content.split(" ");
-  let cmd = messageArray[0].toLowerCase();
+  let messageArray = message.content.toLowerCase().split(" ");
+  let cmd = messageArray[0];
   let args = messageArray.slice(1);
 
   //Format !roll #d# #d#+# #d#++#
   if(cmd === `${prefix}roll`){
     let newArgs = args;
     let totalOfAllRolls = 0;
-    diceRolls = [];
+    let diceRolls = [];
 
     for (var x of newArgs) {
       let localResult = 0;
+      let isAddOrSub = 1;
       let splitValues = x.split("+");
-      let diceSize = splitValues[0].slice(2);
-      let diceCount = x[0];
+      if (splitValues.toString().includes("-")){
+        splitValues = x.split("-");
+        isAddOrSub = -1;
+      }
+      console.log(splitValues);
+      console.log(isAddOrSub);
+      let diceSize = splitValues[0].split("d")[1];
+      let diceCount = splitValues[0].split("d")[0];
       let currentRolls = [];
+      let addBonusToAll = 0;
 
       //Generate Random Rolls
       function createRolls(diceCount, diceSize, thisBonus) {
+        console.log(diceCount, diceSize);
         times (diceCount) (() => currentRolls.push((Math.floor(Math.random() * diceSize) + 1)));
+        console.log(currentRolls);
         if (thisBonus != 0) {
-          currentRolls.push(thisBonus);
+          currentRolls.push(thisBonus * isAddOrSub);
         }
       }
 
@@ -49,14 +59,17 @@ bot.on("message", async message => {
         // diceRolls = diceRolls +
         diceRolls = diceRolls + x + ", ";
         for (var [index, roll] of rolls.entries()){
+          roll = Number(roll) + Number(addBonusToAll * isAddOrSub);
           localResult = Number(localResult) + Number(roll);
 
           if (rolls.length === 1){
-            diceRolls = diceRolls + roll.toString() + "\n";
+            diceRolls = diceRolls + "**" + roll.toString() + "**" + "\n";
           } else if (index === rolls.length - 1){
             diceRolls = diceRolls + roll.toString() + "=" + "**" + localResult + "**" + "\n";
+          } else if (Number(rolls[index + 1] + Number(addBonusToAll * isAddOrSub)).toString().includes("-")) {
+            diceRolls = diceRolls + roll.toString();
           } else {
-          diceRolls = diceRolls + roll.toString() + "+";
+            diceRolls = diceRolls + roll.toString() + "+";
           }
         }
         totalOfAllRolls = totalOfAllRolls + localResult;
@@ -64,8 +77,10 @@ bot.on("message", async message => {
 
       //Check and Process the Type of Roll: #d#, #d#+#, #d#++#
       if (splitValues[1] === '' && splitValues[2] >= 0){
-        //#d#++#
-      } else if (isNaN(splitValues[1])) {
+        addBonusToAll = splitValues[2];
+        createRolls(diceCount, diceSize, 0);
+        evaluateResults(currentRolls);
+      } else if (isNaN(splitValues[1]) || (splitValues[1] === '0')) {
         //#d#
         createRolls(diceCount, diceSize, 0);
         evaluateResults(currentRolls);
