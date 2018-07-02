@@ -1,8 +1,8 @@
-const botconfig = require("./config.json");
+// const botconfig = require("./config.json");
 const Discord = require("discord.js");
 const bot = new Discord.Client({disableEveryone: true});
 const token = process.env.token;
-const prefix = process.env.prefix;
+
 
 const times = x => f => {
   if (x > 0) {
@@ -20,7 +20,8 @@ bot.on("message", async message => {
   if(message.author.bot) return;
   // if(message.channel.type === "dm") return;
 
-  let prefix = botconfig.prefix;
+  const prefix = process.env.prefix;
+  // const prefix = botconfig.prefix;
   let messageArray = message.content.toLowerCase().split(" ");
   let cmd = messageArray[0];
   let args = messageArray.slice(1);
