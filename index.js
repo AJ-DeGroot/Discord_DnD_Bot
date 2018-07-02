@@ -2,6 +2,7 @@ const botconfig = require("./config.json");
 const Discord = require("discord.js");
 const bot = new Discord.Client({disableEveryone: true});
 const token = process.env.token;
+const prefix = process.env.prefix;
 
 const times = x => f => {
   if (x > 0) {
